@@ -3,7 +3,7 @@ from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_session, init_db
-from app.models import Song, SongCreate
+from ...models.models_song import Song, SongCreate
 
 router = APIRouter(
     prefix='/songs',
@@ -11,14 +11,14 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@router.get("/songs", response_model=list[Song])
+@router.get("/", response_model=list[Song])
 async def get_songs(session: AsyncSession = Depends(get_session)):
     result = await session.execute(select(Song))
     songs = result.scalars().all()
     return [Song(name=song.name, artist=song.artist, year=song.year, id=song.id) for song in songs]
 
 
-@router.post("/songs")
+@router.post("/")
 async def add_song(song: SongCreate, session: AsyncSession = Depends(get_session)):
     song = Song(name=song.name, artist=song.artist, year=song.year)
     session.add(song)

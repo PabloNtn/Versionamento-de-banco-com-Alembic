@@ -10,10 +10,13 @@ import time
 
 from starlette.requests import Request
 
-from .core import songs
+from .core.songs import songs
+from .core.enderecos import enderecos as adress
+
 
 tags_metadata = [
-    {"name": "index", "description": "Welcome Zephyrus and best practices."},
+    {"name": "songs", "description": "Songs Repository."},
+    {"name": "adress","description":"Adress Repository"}
 ]
 
 _prefix_api = os.getenv('PREFIX_API', "/motor")
@@ -30,21 +33,29 @@ app = FastAPI(
 
 )
 app.router.redirect_slashes = False
-
-@app.middleware("http")
-async def db_session_middleware(request: Request, call_next):
-    start_time = time.time()
-
-    response = await call_next(request)
-    process_time = time.time() - start_time
-    
-    response.headers["X-Process-Time"] = str(process_time)
-    return response
-
-
+app.include_router(adress.router, prefix=f"{_prefix_api}")
 app.include_router(songs.router, prefix=f"{_prefix_api}")
 
-app.add_middleware(PrometheusMiddleware)
-app.add_route(f"{_prefix_api}/metrics/", metrics)
+
+# @app.on_event("startup")
+# async def on_startup():
+#     await init_db()
+# @app.on_event("startup")
+# async def on_startup():
+#     await init_db()
+
+# @app.middleware("http")
+# async def db_session_middleware(request: Request, call_next):
+#     start_time = time.time()
+
+#     response = await call_next(request)
+#     process_time = time.time() - start_time
+    
+#     response.headers["X-Process-Time"] = str(process_time)
+#     return response
+
+
+# app.add_middleware(PrometheusMiddleware)
+# app.add_route(f"{_prefix_api}/metrics/", metrics)
 
 

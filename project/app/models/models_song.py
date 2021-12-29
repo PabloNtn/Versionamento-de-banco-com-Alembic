@@ -13,3 +13,4 @@ class Song(SongBase, table=True):
 
 class SongCreate(SongBase):
     pass
+
